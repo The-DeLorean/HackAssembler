@@ -7,7 +7,7 @@ public class Code
    // Returns the binary representation of the parsed dest field (string)
    public String dest(String tp)
    {
-      if(tp == null)
+      if(tp == "na")
       {
          return "000";
       }
@@ -179,7 +179,7 @@ public class Code
    //Returns the binary representation of the parsed jump field (string)
    public String jump(String tp)
    {
-      if(tp == null)
+      if(tp == "na")
       {
          return "000";
       }

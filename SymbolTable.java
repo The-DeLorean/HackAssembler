@@ -22,13 +22,13 @@ public class SymbolTable
    // Checks if symbol exists in the table
    public boolean contains(String symbol)
    {
-      return false;
+      return symbolTable.containsKey(symbol);
    }
    
    // Returns the address associated with symbol
    public int getAddress(String symbol)
    {
-      return 0;
+      return symbolTable.getOrDefault(symbol, -1);
    }
    
    private void addDefaults()
@@ -47,6 +47,16 @@ public class SymbolTable
       addEntry("KBD", 24576);
       
    }
-   
-   
+
+
+   @Override
+   public String toString()
+   {
+      StringBuilder sb = new StringBuilder();
+      for (String key : symbolTable.keySet()) {
+         sb.append(key).append(" = ").append(symbolTable.get(key)).append("\n");
+      }
+      return sb.toString();
+   }
+      
 }

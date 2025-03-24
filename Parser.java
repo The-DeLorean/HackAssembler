@@ -20,31 +20,50 @@ public class Parser
          // Create a BufferedReader using a FileReader to read the file
          br = new BufferedReader(new FileReader(program));
             
-         String line;
-         while ((line = br.readLine()) != null) {
-            System.out.println(line);  // Print each line to the console
-         }
+         // String line;
+         // while ((line = br.readLine()) != null) {
+         //    System.out.println(line);  // Print each line to the console
+         // }
+         // br.close();
+
+         //restart the the front of the program
+         // br = new BufferedReader(new FileReader(program));
+
       
       } 
       catch (IOException e) {
            e.printStackTrace();
       } 
-      finally {
-         try {
-             if (br != null) {
-                 br.close();  // Close the BufferedReader to release resources
-             }
-         } 
-         catch (IOException e) {
-             e.printStackTrace();
-         }
-      }
+      // finally {
+      //    try {
+      //        if (br != null) {
+      //          int i = 1;
+      //           // br.close();  // Close the BufferedReader to release resources
+      //        }
+      //    } 
+      //    catch (IOException e) {
+      //        e.printStackTrace();
+      //    }
+      // }
    }
    
    // Checks if there is more work to do
    public boolean hasMoreLines()
    {
-      return linesRemain;
+      try {
+         // Mark the current position in the stream
+         br.mark(1); 
+         // Check if the next character is EOF
+         if (br.read() < 0) { 
+            return false;
+         }
+         br.reset(); // Reset to the marked position
+         return true;
+      } 
+      catch (IOException e) {
+         e.printStackTrace();
+         return false;
+      }  
    }
    
    // Returns the type of the current instruction, as a constant:
@@ -58,7 +77,12 @@ public class Parser
       {
          return "L_INSTRUCTION";
       }
-      else
+      //add for comment
+      else if (currentInstruction.charAt((0)) == '/')
+      {
+         return "COMMENT";
+      }
+      else 
       {
          return "C_INSTRUCTION";
       }
@@ -74,6 +98,7 @@ public class Parser
       {
          return currentInstruction.substring(1);
       }
+      //for Label instruction, remove parenthesis from front and end of string
       else
       {
          return currentInstruction.substring(1, currentInstruction.length()-1);
@@ -83,20 +108,31 @@ public class Parser
    // Returns the instruction’s dest field (string)
    public String dest()
    {
-      // Finding the substring that is left of the equals sign
-      return currentInstruction.substring(0,currentInstruction.indexOf('='));
+      if(currentInstruction.contains("="))
+      {
+         // Finding the substring that is left of the equals sign
+         return currentInstruction.substring(0,currentInstruction.indexOf('='));
+      }
+      else return "na";
    }
    
    // Returns the instruction’s comp field (string)
    public String comp()
    {  
       // Check if equals is present
-      if(currentInstruction.contains("="))
+      if(currentInstruction.contains("=") && !currentInstruction.contains(";"))
       {
+
          // Finding the substring that is in between equals and semicolon
+         return currentInstruction.substring(currentInstruction.indexOf('=')+1);
+      }
+      else if(currentInstruction.contains("=") && currentInstruction.contains(";"))
+      {
          return currentInstruction.substring(currentInstruction.indexOf('=')+1, currentInstruction.indexOf(';'));
+
       }
       // No equals sign
+
       else
       {
          return currentInstruction.substring(0,currentInstruction.indexOf(';'));
@@ -115,7 +151,7 @@ public class Parser
       // No semicolon means no jump field 
       else
       {
-         return null;
+         return "na";
       }
    }
    
@@ -125,9 +161,12 @@ public class Parser
    {
       
       try{
-         currentInstruction = br.readLine();
+         currentInstruction = br.readLine().strip();
       }
       catch (IOException e) {
+         System.out.println("NULL CURRENT INSTRUCTION");
+         e.printStackTrace();
+
       }
       
       if(currentInstruction == null)
@@ -137,6 +176,25 @@ public class Parser
       
       
       return currentInstruction;
+   }
+
+   //accesor for currentInstruction
+   public String currentInstruction()
+   {
+      return currentInstruction;
+   }
+
+
+   //method to cloes stream
+   public void close()
+   {
+      try {
+         if (br != null) {
+            br.close();
+         }
+      } catch (IOException e) {
+         e.printStackTrace();
+      }
    }
 }
    
