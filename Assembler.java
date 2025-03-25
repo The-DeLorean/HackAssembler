@@ -1,4 +1,3 @@
-import java.util.Scanner;
 import java.io.*;
 
 public class Assembler
@@ -9,20 +8,90 @@ public class Assembler
 
 	private BufferedWriter writer;
 
-	//color for error text
-	public static final String ANSI_RED ="\u001B[31m";
-	//color to reset the text back to white
-	public static final String ANSI_WHITE = "\u001b[0m";
 
+	//constructor 
+	//craete a Symbol table that will be used in pass 1 and pass 2 as well as the output file writer
 	public Assembler()
 	{
-		code = new Code();
 		symbolTable = new SymbolTable();
 		try
 		{
-			writer = new BufferedWriter(new FileWriter("./output.txt"));
+			writer = new BufferedWriter(new FileWriter("./Rect.hack"));
 		}
-		catch(IOException ioe){}
+		catch(IOException ioe)
+		{
+			ioe.printStackTrace();
+			System.exit(1);
+		}
+	}
+
+
+	//method to check if a string value is numeric by attempting to convert it to a double
+	public boolean isNumeric(String str) {
+        if (str == null || str.isEmpty()) {
+            return false;
+        }
+		//if not empty 0 try and convert to a double and throw error if a string
+        try {
+            Double.parseDouble(str);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
+
+	//function adapted from geeks for geeks
+    // Function converting decimal to binary
+	// Function converting decimal to binary and returning it as a string
+	public String decimalToBinary(int num)
+	{
+		// Create a StringBuilder to store the binary representation
+		StringBuilder binary = new StringBuilder();
+
+		// Convert the number to binary
+		while (num > 0) {
+			binary.append(num % 2);
+			num = num / 2;
+		}
+
+		// Reverse the binary string to get the correct order
+		binary.reverse();
+
+		// Pad with leading zeros to make it 16 bits
+		while (binary.length() < 15) {
+			binary.insert(0, "0");
+		}
+
+		// Return the binary string
+		return binary.toString();
+	}
+
+
+	//function to write to output
+	public void writeToOutput(String line)
+	{
+		try
+		{
+			writer.write(line + "\n");
+		}
+		catch(IOException ioe)
+		{
+			System.out.println("Error writing to line in Assember writeToOutPut with string: \t" + line);
+		}
+	}
+
+
+	//method to close the writer if it is still open
+	public void closeWriter()
+	{
+		try {
+			if (writer != null) {
+				writer.close(); 
+			}
+		} catch (IOException e) {
+			e.printStackTrace(); 
+		}
 	}
 
 
@@ -30,42 +99,41 @@ public class Assembler
 	//iterate over the instruction memory to sroe it in sybmbol table
 	public void firstPass(String program)
 	{
+		//instantiate parser
 		parser = new Parser(program);
 
 		//store the current address of the memory  -- ROMM ADDRESS 0
 		int currentAddress = 0;
 		
+		//loop while there are more instructions to read in the input file
 		while(parser.hasMoreLines())
 		{
 			//advance to read next instructionm
 			String temp = parser.advance();
 			//check if comment of blanke
-			if(temp.trim().isEmpty() || parser.instructionType() == "COMMENT"){}
+			if(temp.trim().isEmpty() || parser.instructionType().equals("COMMENT")){}
 			else 
 			{
 				//do not increment the address for this instruction since Labels font occupy 
 				if (parser.instructionType() == "L_INSTRUCTION")
 				{
 					//check if symbol table conttains the label
-					if(symbolTable.contains(parser.symbol()))
+					if(!symbolTable.contains(parser.symbol()))
 					{
-						System.out.println("ST already contains: " + parser.symbol());
+						symbolTable.addEntry(parser.symbol(), currentAddress);
 					}
-					else
-					{
-						symbolTable.addEntry(parser.symbol(), currentAddress + 1);
-					}
-					//label
 				}
 				//dealing with instruction -- save for second pass, increment instructions
-				currentAddress++;
+				else
+				{
+					currentAddress++;
+				}
 			}
 
 		}
+		//close the buffer
 		parser.close();
 		parser = null;
-		System.out.println(symbolTable);
-
 	}
 
 
@@ -79,22 +147,18 @@ public class Assembler
 	 {
 		//reinstantiate the parser class to start from top of file
 		parser = new Parser(program);
-		//create to write to file
-
-		
 		
 		//instantiate code object to translate coode to binary
 		code = new Code();
 
 		//current intruction
-		//associate with current address + 1 since labels point to next instruction
-
+		//set currentRAMAddress to be at 16 since R0-R15 take up address 0-15
 		int currentRAMAddress = 16;
 
 		//loop while parse hasMoreLines
 		while(parser.hasMoreLines())
 		{
-			//c instruction
+			//store whole instruction in temp
 			String temp = parser.advance();
 			//empty line or comment check
 			if(temp.trim().isEmpty() || parser.instructionType() == "COMMENT"){}
@@ -131,8 +195,6 @@ public class Assembler
 							writeToOutput("0" + decimalToBinary(symbolTable.getAddress(symbol)));
 						}
 					}
-					//check if the sumbol ise
-					System.out.println("A_INSTRUCTION");
 				}
 
 				//dest = comp;jump
@@ -143,140 +205,40 @@ public class Assembler
 					String binaryCString = "111";	//starts with 111 by default
 
 					binaryCString += code.comp(parser.comp());
-					System.out.println("comp\t" + code.comp(parser.comp()));
 					binaryCString += code.dest(parser.dest());
-					System.out.println("dest\t" + code.dest(parser.dest()));
 					binaryCString += code.jump(parser.jump());
-					System.out.println("jump\t" + code.jump(parser.jump()));
 
 					writeToOutput(binaryCString);
-
-					System.out.println("C_INSTRUCTION");
-				}			 
-				System.out.println(parser.symbol());
+				}			
 			}
 			
 		}
 		//close parser
 		parser.close();
-
 		//close burffer write to output file
 		closeWriter();
-
 	 }
 
-	//function from geeps for geeks
-    // Function converting decimal to binary
-	// Function converting decimal to binary and returning it as a string
-	public String decimalToBinary(int num)
-	{
-		// Create a StringBuilder to store the binary representation
-		StringBuilder binary = new StringBuilder();
-
-		// Convert the number to binary
-		while (num > 0) {
-			binary.append(num % 2);
-			num = num / 2;
-		}
-
-		// Reverse the binary string to get the correct order
-		binary.reverse();
-
-		// Pad with leading zeros to make it 16 bits
-		while (binary.length() < 15) {
-			binary.insert(0, "0");
-		}
-
-		// Return the binary string
-		return binary.toString();
-	}
-
-	public boolean isNumeric(String str) {
-        if (str == null || str.isEmpty()) {
-            return false;
-        }
-        try {
-            Double.parseDouble(str);
-            return true;
-        } catch (NumberFormatException e) {
-            return false;
-        }
-    }
-
-	//function to write to output
-	public void writeToOutput(String line)
-	{
-		try
-		{
-			writer.write(line);
-			writer.newLine();
-		}
-		catch(IOException ioe)
-		{
-			System.out.println("Error writing to line in Assember writeToOutPut with string: \t" + line);
-		}
-	}
-
-	public void closeWriter()
-	{
-		try {
-			if (writer != null) { // Check if the writer is not null
-				writer.close(); // Close the writer
-			}
-		} catch (IOException e) {
-			e.printStackTrace(); // Print the stack trace if an exception occurs
-		}
-	}
 
 	public static void main(String[]args)
 	{
+		//instantiate assembler object
 		Assembler assembler;
-		//scanner initialization to read from file passed to command line
-		//Scanner read;
-
-
-
 		//check if no cmd line arguments were passed -- exit program
 		if(args.length==0)
 		{
-			System.out.println(ANSI_RED + "No file name passed to command line argument, exiting program" + ANSI_WHITE);
+			System.out.println("No file name passed to command line argument, exiting program");
 			System.exit(0);
 		}
 		else
 		{
+			//initialize assembler
 			assembler = new Assembler();
-
+			//perform first pass to add L instructions to SymbolTable
 			assembler.firstPass(args[0]);
-
+			//perform second pass to parse A and C instructions and generate binary
 			assembler.secondPass(args[0]);
-
-			
-			// //read in file from cmd arg
-			// try
-			// {
-			// 	//create a file 
-			// 	//create a scanner object that reads the file from the first command line argument
-			// 	read = new Scanner(new File(args[0]));
-			// 	//loop while there are values to read from the command line argument
-			// 	// while(read.hasNextLine())
-			// 	// {
-			// 	// 	System.out.println(read.nextLine());
-			// 	// }
-			// }
-			// //if no file is found, throw and error and exit the program
-			// catch(FileNotFoundException fnfe)
-			// {
-			// 	System.out.println(ANSI_RED);
-			// 	fnfe.printStackTrace();
-			// 	System.out.println(ANSI_WHITE);
-			// 	System.exit(0);
-			// }
-
-			//perform second pass of the code and convert symbols created byparser to binary code
-
-
 		}
-
 	}
 	
 }

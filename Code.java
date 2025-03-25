@@ -24,7 +24,7 @@ public class Code
             bin = "010";
             break;
          
-         case("DM"):
+         case("MD"):
             bin = "011";
             break;
          
@@ -43,7 +43,9 @@ public class Code
          case("ADM"):
             bin = "111";
             break;
-         
+         case("na"):
+            bin = "000";
+            break;
          default:
             break;
       }
@@ -215,7 +217,8 @@ public class Code
          case("JMP"):
             bin = "111";
             break;
-         
+         case("na"):
+            bin = "000";
          default:
             break;
       }

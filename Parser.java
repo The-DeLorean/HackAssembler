@@ -48,22 +48,25 @@ public class Parser
    }
    
    // Checks if there is more work to do
+   // Checks if there is another line to read in the BufferedReader
    public boolean hasMoreLines()
    {
       try {
-         // Mark the current position in the stream
-         br.mark(1); 
-         // Check if the next character is EOF
-         if (br.read() < 0) { 
-            return false;
+         // Check if the BufferedReader supports marking
+         if (!br.markSupported()) {
+               return false;
          }
-         br.reset(); // Reset to the marked position
-         return true;
-      } 
-      catch (IOException e) {
+
+         // Mark the current position in the stream with a sufficient read-ahead limit
+         br.mark(1000); 
+         int nextChar = br.read(); 
+         br.reset(); 
+
+         return nextChar != -1;
+      } catch (IOException e) {
          e.printStackTrace();
          return false;
-      }  
+      }
    }
    
    // Returns the type of the current instruction, as a constant:
@@ -113,7 +116,8 @@ public class Parser
          // Finding the substring that is left of the equals sign
          return currentInstruction.substring(0,currentInstruction.indexOf('='));
       }
-      else return "na";
+      else 
+         return "na";
    }
    
    // Returns the instruction’s comp field (string)
