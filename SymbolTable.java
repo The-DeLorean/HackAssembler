@@ -1,5 +1,9 @@
 import java.util.HashMap;
 
+/*
+Handles symbols in the assmebly language
+*/
+
 public class SymbolTable
 {
    HashMap<String, Integer> symbolTable;
@@ -47,9 +51,7 @@ public class SymbolTable
       addEntry("KBD", 24576);
       
    }
-
-
- 
+   
    public String toString()
    {
       StringBuilder sb = new StringBuilder();

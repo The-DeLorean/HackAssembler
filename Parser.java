@@ -28,8 +28,7 @@ public class Parser
 
    }
    
-   // Checks if there is more work to do
-   // Checks if there is another line to read in the BufferedReader
+   // Checks if there is more work to do, i.e. if there is another line to read in the BufferedReader
    public boolean hasMoreLines()
    {
       try {
@@ -53,10 +52,12 @@ public class Parser
    // Returns the type of the current instruction, as a constant:
    public String instructionType()
    {
+      // A Instrucitons start with "@"
       if (currentInstruction.charAt(0) == '@')
       {
          return "A_INSTRUCTION";
       }
+      // L Instructions will be enclosed with parantheses
       else if (currentInstruction.charAt(0) == '(')
       {
          return "L_INSTRUCTION";
@@ -117,7 +118,6 @@ public class Parser
 
       }
       // No equals sign
-
       else
       {
          return currentInstruction.substring(0,currentInstruction.indexOf(';'));
@@ -163,14 +163,14 @@ public class Parser
       return currentInstruction;
    }
 
-   //accesor for currentInstruction
+   // Accesor for currentInstruction
    public String currentInstruction()
    {
       return currentInstruction;
    }
 
 
-   //method to cloes stream
+   // Method to cloes stream
    public void close()
    {
       try {

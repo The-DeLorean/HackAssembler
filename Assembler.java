@@ -1,5 +1,9 @@
 import java.io.*;
 
+/*
+Main assembler class, utilizes Parser.java, SymbolTable.java, and Code.java
+*/
+
 public class Assembler
 {
 	private Parser parser;
