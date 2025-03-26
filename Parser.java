@@ -20,31 +20,12 @@ public class Parser
          // Create a BufferedReader using a FileReader to read the file
          br = new BufferedReader(new FileReader(program));
             
-         // String line;
-         // while ((line = br.readLine()) != null) {
-         //    System.out.println(line);  // Print each line to the console
-         // }
-         // br.close();
 
-         //restart the the front of the program
-         // br = new BufferedReader(new FileReader(program));
-
-      
       } 
       catch (IOException e) {
            e.printStackTrace();
       } 
-      // finally {
-      //    try {
-      //        if (br != null) {
-      //          int i = 1;
-      //           // br.close();  // Close the BufferedReader to release resources
-      //        }
-      //    } 
-      //    catch (IOException e) {
-      //        e.printStackTrace();
-      //    }
-      // }
+
    }
    
    // Checks if there is more work to do

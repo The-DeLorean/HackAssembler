@@ -96,7 +96,7 @@ public class Assembler
 
 
 	//iterate over the input file and populate the symbol table with L commands only
-	//iterate over the instruction memory to sroe it in sybmbol table
+	//iterate over the instruction memory to store it in sybmbol table
 	public void firstPass(String program)
 	{
 		//instantiate parser
@@ -139,7 +139,7 @@ public class Assembler
 
 	/*
 	 * Second pass of the parser
-	 * parse each intruction and resolve each symbol
+	 * parse each A or C intruction and resolve each symbol
 	 * translate to binary using code class
 	 * write to output file
 	 */
